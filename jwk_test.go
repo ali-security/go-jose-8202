@@ -393,8 +393,13 @@ func TestCertificatesURL(t *testing.T) {
    "x5u": "://example.com/keys.json"
 }`
 	err = jwk2.UnmarshalJSON([]byte(invalidURLJWK))
-	require.EqualError(t, err, "go-jose/go-jose: invalid JWK, x5u header is invalid URL: parse \"://example.com/keys.json\": missing protocol scheme")
-}
+	isEqual := func() assert.Comparison {
+		return func() bool {
+			return err.Error() == "go-jose/go-jose: invalid JWK, x5u header is invalid URL: parse \"://example.com/keys.json\": missing protocol scheme" || err.Error() == "go-jose/go-jose: invalid JWK, x5u header is invalid URL: parse ://example.com/keys.json: missing protocol scheme"
+		}
+	}
+	require.Condition(t, isEqual())
+}}
 
 func TestInvalidThumbprintsX509(t *testing.T) {
 	// Too short
